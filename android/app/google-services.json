@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "636625577083",
+    "project_id": "papb-81a86",
+    "storage_bucket": "papb-81a86.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:636625577083:android:131817b8f547c0d39b2ede",
+        "android_client_info": {
+          "package_name": "com.wallethelper.wallet_helper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAo8wAyHm7R_lDU441Lfz6vJsBsKLAiNBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
