@@ -1,7 +1,6 @@
 import 'package:fl_chart/fl_chart.dart'; // Import wajib untuk grafik
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 
 class StatistikScreen extends StatelessWidget {
   const StatistikScreen({super.key});

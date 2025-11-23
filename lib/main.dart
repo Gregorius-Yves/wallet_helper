@@ -2,11 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:flutters/statistik_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-import 'statistik_screen.dart';
 
 // --- 1. DATA MODEL & DUMMY DATA ---
 // Kita buat class agar data rapi dan bisa dipanggil di mana saja
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: LoginPage(),
+    );
+  }
+}
+
 class Transaction {
   final String title;
   final String subtitle;
@@ -167,7 +190,7 @@ class HomeScreen extends StatelessWidget {
                           // Menampilkan HANYA 3 transaksi teratas
                           ...allTransactions.take(3).map((transaksi) {
                             return TransactionItem(data: transaksi);
-                          }).toList(),
+                          }),
                         ],
                       ),
                     ),
