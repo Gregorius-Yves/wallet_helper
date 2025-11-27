@@ -21,31 +21,56 @@ class _LoginPageState extends State<LoginPage> {
 
   // --- FUNGSI LOGIN EMAIL BIASA ---
   Future<void> login() async {
-    setState(() => isLoading = true);
+    FocusScope.of(context).unfocus();
+
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      showError("Email dan password wajib diisi");
+      return;
+    }
+
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
+      setState(() => isLoading = true);
+
+      final result = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+
+      debugPrint("LOGIN OK UID: ${result.user?.uid}");
 
       if (!mounted) return;
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomePage()),
       );
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message ?? "Terjadi kesalahan"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      debugPrint("LOGIN ERROR: ${e.code}");
+      showError(e.message ?? e.code);
+    } catch (e) {
+      debugPrint("CRASH: $e");
+      showError(e.toString());
     } finally {
       if (mounted) setState(() => isLoading = false);
     }
   }
 
+  void showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
 
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +85,6 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // LOGO
                 SizedBox(
                   height: 250,
                   width: double.infinity,
@@ -69,7 +93,6 @@ class _LoginPageState extends State<LoginPage> {
                     fit: BoxFit.contain,
                   ),
                 ),
-
                 const SizedBox(height: 20),
 
                 // INPUT EMAIL
@@ -77,6 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 8),
                 TextField(
                   controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white,
@@ -110,9 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                         color: Colors.grey,
                       ),
                       onPressed: () {
-                        setState(() {
-                          isObscure = !isObscure;
-                        });
+                        setState(() => isObscure = !isObscure);
                       },
                     ),
                   ),
@@ -121,7 +143,9 @@ class _LoginPageState extends State<LoginPage> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      showError("Belum diimplementasi");
+                    },
                     child: Text(
                       "Forgot Password?",
                       style: GoogleFonts.poppins(
@@ -202,32 +226,14 @@ class _LoginPageState extends State<LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // --- TOMBOL GOOGLE ---
-                    _socialButton(
-                      imagePath: 'assets/images/google.png',
-                      onTap: () {
-                        // Memanggil fungsi login Google
-
-                      },
-                    ),
+                    _socialButton(imagePath: 'assets/images/google.png', onTap: null),
                     const SizedBox(width: 20),
-                    // --- TOMBOL FACEBOOK ---
-                    _socialButton(
-                      imagePath: 'assets/images/facebook.png',
-                      onTap: () {
-                        // Logika login FB nanti di sini
-                      },
-                    ),
+                    _socialButton(imagePath: 'assets/images/facebook.png', onTap: null),
                     const SizedBox(width: 20),
-                    // --- TOMBOL APPLE ---
-                    _socialButton(
-                      imagePath: 'assets/images/apple.png',
-                      onTap: () {
-                        // Logika login Apple nanti di sini
-                      },
-                    ),
+                    _socialButton(imagePath: 'assets/images/apple.png', onTap: null),
                   ],
                 ),
+
                 const SizedBox(height: 30),
               ],
             ),
@@ -256,10 +262,7 @@ class _LoginPageState extends State<LoginPage> {
           ],
         ),
         padding: const EdgeInsets.all(12),
-        child: Image.asset(
-          imagePath,
-          fit: BoxFit.contain,
-        ),
+        child: Image.asset(imagePath, fit: BoxFit.contain),
       ),
     );
   }
