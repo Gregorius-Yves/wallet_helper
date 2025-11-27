@@ -4,6 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 import 'login_page.dart'; // Import Login Page untuk navigasi setelah logout
 import 'wallet_pages/wallet_page.dart'; // Import Wallet Page
 import 'statistic_pages/statistics_page.dart'; // Import Statistics Page
+import 'service/font_service.dart';
+import 'main.dart'; // untuk akses globalFontSize & getFontSize (jika diperlukan)
+
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -172,6 +175,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   children: [
                     // GRUP: GENERAL
                     _buildSectionHeader("General"),
+                    _buildMenuItem(Icons.text_fields, "Font Size", globalFontSize, onTap: _openFontDialog),
                     _buildMenuItem(Icons.location_on, "Bank Location", "730m"),
                     _buildMenuItem(Icons.account_balance_wallet, "My Wallet", "Connect your wallet"),
 
@@ -254,42 +258,71 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  // Widget Helper: Item Menu (Kotak Putih)
-  Widget _buildMenuItem(IconData icon, String title, String subtitle) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFF78A).withOpacity(0.5), // Kuning transparan
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: Colors.black87, size: 20),
+  /// Widget Helper: Item Menu (Kotak Putih)
+Widget _buildMenuItem(
+  IconData icon,
+  String title,
+  String subtitle, {
+  VoidCallback? onTap, // ← DITAMBAHKAN
+}) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.02),
+          blurRadius: 5,
+          offset: const Offset(0, 2),
         ),
-        title: Text(
-          title,
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
+      ],
+    ),
+    child: ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF78A).withOpacity(0.5), // Kuning transparan
+          shape: BoxShape.circle,
         ),
-        subtitle: subtitle.isNotEmpty
-            ? Text(subtitle, style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey))
-            : null,
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-        onTap: () {
-          // Tambahkan logika navigasi menu di sini jika perlu
-        },
+        child: Icon(icon, color: Colors.black87, size: 20),
       ),
-    );
+      title: Text(
+        title,
+        style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
+      ),
+      subtitle: subtitle.isNotEmpty
+          ? Text(subtitle, style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey))
+          : null,
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+
+      onTap: onTap ?? () {}, // ← DITAMBAHKAN, aktifkan klik
+    ),
+  );
+}
+
+
+  void _openFontDialog() async {
+  String? selected = await showMenu(
+    context: context,
+    position: const RelativeRect.fromLTRB(200, 200, 10, 10),
+    items: const [
+      PopupMenuItem(value: "Small", child: Text("Small")),
+      PopupMenuItem(value: "Medium", child: Text("Medium")),
+      PopupMenuItem(value: "Large", child: Text("Large")),
+    ],
+  );
+
+  if (selected != null) {
+    await FontService.saveFontSize(selected);
+
+    setState(() {
+      globalFontSize = selected;
+    });
+
+    // Refresh UI
+    (context as Element).markNeedsBuild();
   }
+}
+
 }
