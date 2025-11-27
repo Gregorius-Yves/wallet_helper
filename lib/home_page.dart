@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-import 'add_note.dart';
 import 'transaction_detail_dialog.dart';
 import 'balance_card.dart';
 import 'calendar_page.dart';
@@ -44,6 +43,37 @@ class _HomePageState extends State<HomePage> {
         currentDate = DateTime(picked.year, picked.month);
       });
     }
+  }
+
+  Future<Map<String, int>> _getMonthlySummary(String uid) async {
+    final start = DateTime(currentDate.year, currentDate.month, 1);
+    final end = DateTime(currentDate.year, currentDate.month + 1, 1);
+
+    final snap = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('transactions')
+        .where('created', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
+        .where('created', isLessThan: Timestamp.fromDate(end))
+        .get();
+
+    int income = 0;
+    int expense = 0;
+
+    for (var d in snap.docs) {
+      final data = d.data();
+      if (data['type'] == 'income') {
+        income += (data['amount'] as int);
+      } else {
+        expense += (data['amount'] as int);
+      }
+    }
+
+    return {
+      "income": income,
+      "expense": expense,
+      "balance": income - expense,
+    };
   }
 
   @override
@@ -130,15 +160,29 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            BalanceCard(
-              formattedDate: formattedDate,
-              onPrevMonth: () => _changeMonth(-1),
-              onNextMonth: () => _changeMonth(1),
-              onSelectMonth: _selectMonth,
-              totalBalance: 0,
-              totalIncome: 0,
-              totalExpense: 0,
+
+            // ✅ SUMMARY CARD CONNECTED TO FIRESTORE
+            FutureBuilder<Map<String, int>>(
+              future: _getMonthlySummary(uid),
+              builder: (context, snapshot) {
+                final data = snapshot.data ?? {
+                  "income": 0,
+                  "expense": 0,
+                  "balance": 0,
+                };
+
+                return BalanceCard(
+                  formattedDate: formattedDate,
+                  onPrevMonth: () => _changeMonth(-1),
+                  onNextMonth: () => _changeMonth(1),
+                  onSelectMonth: _selectMonth,
+                  totalBalance: data["balance"]!,
+                  totalIncome: data["income"]!,
+                  totalExpense: data["expense"]!,
+                );
+              },
             ),
+
             Expanded(
               child: Container(
                 width: double.infinity,
@@ -223,7 +267,8 @@ class _HomePageState extends State<HomePage> {
                                 color: type == "income"
                                     ? Colors.green
                                     : Colors.redAccent,
-                                dateStr: DateFormat('dd MMM yyyy').format(date),
+                                dateStr:
+                                DateFormat('dd MMM yyyy').format(date),
                               );
                             },
                           );
@@ -237,6 +282,8 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+
+      // ✅ "+" opens your FULL Add screen with grid + calculator
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 10),
@@ -258,6 +305,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -286,7 +334,8 @@ class _HomePageState extends State<HomePage> {
         showUnselectedLabels: true,
         selectedLabelStyle: GoogleFonts.poppins(
             fontSize: 10, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: GoogleFonts.poppins(fontSize: 10),
+        unselectedLabelStyle:
+        GoogleFonts.poppins(fontSize: 10),
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.home_filled), label: "Home"),
@@ -353,7 +402,9 @@ class _HomePageState extends State<HomePage> {
             ),
             Text(
               NumberFormat.currency(
-                  locale: 'id_ID', symbol: 'Rp', decimalDigits: 0)
+                  locale: 'id_ID',
+                  symbol: 'Rp',
+                  decimalDigits: 0)
                   .format(amount.abs()),
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w600,
