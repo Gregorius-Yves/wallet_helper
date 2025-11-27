@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'home_page.dart';
 import 'register_page.dart';
 
@@ -18,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   bool isLoading = false;
   bool isObscure = true;
 
+  // --- FUNGSI LOGIN EMAIL BIASA ---
   Future<void> login() async {
     setState(() => isLoading = true);
     try {
@@ -43,6 +45,8 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     Color yellowBackground = const Color(0xFFFFF78A);
@@ -56,7 +60,8 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Container(
+                // LOGO
+                SizedBox(
                   height: 250,
                   width: double.infinity,
                   child: Image.asset(
@@ -67,6 +72,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 20),
 
+                // INPUT EMAIL
                 Text("Email", style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 8),
                 TextField(
@@ -84,6 +90,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 16),
 
+                // INPUT PASSWORD
                 Text("Password", style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 8),
                 TextField(
@@ -128,6 +135,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 10),
 
+                // BUTTONS LOGIN & REGISTER
                 isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : Column(
@@ -149,9 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                         style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                     ),
-
                     const SizedBox(height: 12),
-
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(
@@ -178,6 +184,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 30),
 
+                // DIVIDER OR
                 Row(
                   children: [
                     Expanded(child: Divider(color: Colors.grey.shade400)),
@@ -191,23 +198,33 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 20),
 
+                // SOCIAL BUTTONS
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // --- TOMBOL GOOGLE ---
                     _socialButton(
                       imagePath: 'assets/images/google.png',
                       onTap: () {
+                        // Memanggil fungsi login Google
+
                       },
                     ),
                     const SizedBox(width: 20),
+                    // --- TOMBOL FACEBOOK ---
                     _socialButton(
                       imagePath: 'assets/images/facebook.png',
-                      onTap: () {},
+                      onTap: () {
+                        // Logika login FB nanti di sini
+                      },
                     ),
                     const SizedBox(width: 20),
+                    // --- TOMBOL APPLE ---
                     _socialButton(
                       imagePath: 'assets/images/apple.png',
-                      onTap: () {},
+                      onTap: () {
+                        // Logika login Apple nanti di sini
+                      },
                     ),
                   ],
                 ),
@@ -220,6 +237,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  // Widget Helper Tombol Sosmed
   Widget _socialButton({required String imagePath, VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
@@ -231,9 +249,9 @@ class _LoginPageState extends State<LoginPage> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 5,
-                spreadRadius: 1
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 5,
+              spreadRadius: 1,
             ),
           ],
         ),

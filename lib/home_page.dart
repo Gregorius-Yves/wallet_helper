@@ -5,6 +5,10 @@ import 'add_note.dart';
 import 'transaction_detail_dialog.dart';
 import 'balance_card.dart';
 import 'calendar_page.dart';
+import 'statistic_pages/statistics_page.dart';
+import 'settings_page.dart';
+import 'wallet_pages/wallet_page.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -81,16 +85,24 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ],
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
-                      ],
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SettingsPage()),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(8),
+                      child: const Icon(Icons.person, color: Colors.black54),
                     ),
-                    padding: const EdgeInsets.all(8),
-                    child: const Icon(Icons.person, color: Colors.black54),
                   ),
                 ],
               ),
@@ -167,17 +179,19 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
 
+      // PERBAIKAN: Memindahkan FAB ke tengah agar tidak menutupi tombol Settings di kanan
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 0),
+        padding: const EdgeInsets.only(bottom: 10),
         child: SizedBox(
-          width: 55,
-          height: 55,
+          width: 60,
+          height: 60,
           child: FloatingActionButton(
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const AddNotePage()));
             },
             backgroundColor: const Color(0xFFFDE047),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             elevation: 4,
             child: const Icon(Icons.add, size: 32, color: Colors.black),
           ),
@@ -186,7 +200,45 @@ class _HomePageState extends State<HomePage> {
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: (index) {
+          // 1. Update tampilan tombol yang aktif
+          setState(() => _currentIndex = index);
+
+          // 2. Logika Navigasi
+          if (index == 0) {
+            // Home (Stay here)
+          }
+          else if (index == 1) {
+            // Wallet
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const WalletPage()),
+            ).then((_) {
+              // Reset ke home saat kembali
+              setState(() => _currentIndex = 0);
+            });
+          }
+          else if (index == 2) {
+            // Statistics
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const StatisticsPage()),
+            ).then((_) {
+              // Reset ke home saat kembali
+              setState(() => _currentIndex = 0);
+            });
+          }
+          else if (index == 3) {
+            // Settings
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsPage()),
+            ).then((_) {
+              // Reset ke home saat kembali
+              setState(() => _currentIndex = 0);
+            });
+          }
+        },
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         selectedItemColor: Colors.black,
